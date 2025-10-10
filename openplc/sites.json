@@ -2,6 +2,6 @@
   {
     "SITE_NAME": "openplc",
     "PORT": 8081,
-    "REPO": "https://github.com/FOSSEE/openplc_docker_image",
+    "REPO": "https://github.com/FOSSEE/openplc_docker_image"
   }
 ]
