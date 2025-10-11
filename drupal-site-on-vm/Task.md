@@ -148,7 +148,7 @@ sudo chcon -R -u system_u -t usr_t /opt/keycloak
 Create database and user for keycloak:
 
 ```shell
-# Login to MariaDB
+# Login to MySQl
 sudo mysql -u root -p
 
 CREATE DATABASE keycloakdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -175,7 +175,7 @@ sudo vi /opt/keycloak/conf/keycloak.conf
 
 # Update/add these lines
 
-#Configure keycloak to use MariaDB instead of H2
+#Configure keycloak to use MySQL instead of H2
 db=mysql
 db-username=keycloakuser
 db-password=your_password
@@ -270,17 +270,17 @@ Create keycloak client
 - Login and navigate to Clients > Create Client.
 - General Settings: Set Client type to `OpenID Connect` and Client ID to `openplc`. Click Next.
 - Capability config: Ensure Client authentication is On.
-- Login settings: Paste the URL into \*\*Valid redirect URIs: `{redirect_url}`
+- Login settings: Paste the URL into Valid redirect URIs: `{redirect_url}`
   Hit Save.
 - Navigate to the Credentials tab and Copy the Client secret.
 
 Final Configuration
 
 - Return to Drupal's Configuration > OpenID Connect.
-  Client ID: `openplc`
-  Client secret: `{client_secret}` // paste the secret copied from Keycloak).
-  Keycloak base url: `http://{keycloak_domain}:8080`
-  Keycloak realm: `master` (or your custom realm).
+  - Client ID: `openplc`
+  - Client secret: `{client_secret}` // paste the secret copied from Keycloak.
+  - Keycloak base url: `http://{keycloak_domain}:8080`
+  - Keycloak realm: `master` (or your custom realm).
 - Enable these options:
 
   - Replace Drupal login with Keycloak single sign-on (SSO)
