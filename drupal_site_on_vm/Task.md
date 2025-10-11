@@ -6,7 +6,7 @@ This guide sets up Openplc(Drupal site) integrated with Keycloak for sso on Rock
 
 - Download the Rocky Linux iso image and a virtualization tool (eg VirtualBox)
 - Create and complete the installation of the Rocky Linux VM.
-- Set the VM's network adapter to **Bridged Adapter** for network accessibility from the host machine.
+- Set the VM's network adapter to Bridged Adapter for network accessibility from the host machine.
 
 ## 2. Install required dependencies
 
@@ -42,15 +42,6 @@ Remove test database and access to it? (Press y|Y for Yes, any other key for No)
 Reload privilege tables now? (Press y|Y for Yes, any other key for No) : y
 
 All done!
-```
-
-Edit my.conf.d to add mysql_native_password.so
-
-```sh
-sudo vi /etc/my.conf.d/mysql-server.cnf
-# Add this
-[mysqld]
-plugin-load-add=mysql_native_password.so
 ```
 
 Restart mysqld
@@ -270,23 +261,23 @@ Drupal: Get Redirect URL
 
 - Open your Drupal site.
 - Login and navigate to Configuration > Web Services > OpenID Connect.
-- Under Enabled OpenID Connect clients check the **Keycloak**
+- Under Enabled OpenID Connect clients check the Keycloak
 - Copy Redirect url given
 
 Create keycloak client
 
 - Open your Keycloak console at `http://{keycloak_domain}:8080`.
-- Login and navigate to **Clients > Create Client**.
-- General Settings: Set **Client type** to `OpenID Connect` and **Client ID** to `openplc`. Click Next.
-- Capability config: Ensure **Client authentication** is **On**.
+- Login and navigate to Clients > Create Client.
+- General Settings: Set Client type to `OpenID Connect` and Client ID to `openplc`. Click Next.
+- Capability config: Ensure Client authentication is On.
 - Login settings: Paste the URL into \*\*Valid redirect URIs: `{redirect_url}`
   Hit Save.
-- Navigate to the **Credentials** tab and **Copy the Client secret**.
+- Navigate to the Credentials tab and Copy the Client secret.
 
 Final Configuration
 
 - Return to Drupal's Configuration > OpenID Connect.
-  **Client ID**: `openplc`
+  Client ID: `openplc`
   Client secret: `{client_secret}` // paste the secret copied from Keycloak).
   Keycloak base url: `http://{keycloak_domain}:8080`
   Keycloak realm: `master` (or your custom realm).
