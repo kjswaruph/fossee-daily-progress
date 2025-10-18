@@ -198,16 +198,20 @@ cd /opt/keycloak
 sudo -u keycloak ./bin/kc.sh build
 export P=your_password
 sudo --preserve-env=P ./bin/kc.sh bootstrap-admin user --username admin --password:env P
+
 ```
 
 > **Note**: This admin is temporary. After logging into the Admin Console, create a permanent admin user with the `admin` role, then remove the bootstrap user.
 
-Build and verify
+Run and login to keycloak
 
 ```shell
 cd /opt/keycloak
+sudo chown -R keycloak:keycloak /opt/keycloak/
 sudo -u keycloak ./bin/kc.sh start --optimized
 ```
+
+Now login to keycloak console with temporary credentials and create new admin user and delete the bootstrap user
 
 Create the service file `/etc/systemd/system/keycloak.service`:
 
@@ -232,7 +236,24 @@ RestartSec=30
 WantedBy=multi-user.target
 ```
 
-Set correct owner and selinux file attributes.
+Set correct owner and seli[Unit]
+Description=Keycloak Authorization Server
+After=network.target
+
+[Service]
+Type=idle
+User=keycloak
+Group=keycloak
+WorkingDirectory=/opt/keycloak
+ExecStart=/opt/keycloak/bin/kc.sh start --optimized
+LimitNOFILE=102400
+LimitNPROC=102400
+TimeoutStartSec=600
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.targetnux file attributes.
 
 ```shell
 sudo chcon -u system_u -t systemd_unit_file_t /etc/systemd/system/keycloak.service
@@ -312,3 +333,48 @@ Login using SSO
 - You should be redirected to keycloak console
 - Login with your keycloak credentials
 - On successful login you will be redirected back to Openplc site
+
+## 8. Make podman changes persist
+
+````
+Now openplc_container gets removed because of -rm tag so we run the the container again manually withStop the container running
+
+```sh
+podman stop openplc_container
+WARN[0010] StopSignal SIGWINCH failed to stop container openplc_container in 10 seconds, resorting to SIGKILL
+openplc_container
+podman ps -a
+````
+
+Now openplc_container gets removed because of -rm tag so we run the the container again manually without -rm tag
+
+```sh
+podman run -d --name openplc_container --cgroups=split --pull never --network slirp4netns:allow_host_loopback=true --cap-add net_raw -v openplc_volume:/var/www/html/sites/default/files:Z --publish 8081:80   localhost/openplc_image:latest
+
+# Now make the changes
+podman exec -it openplc_container bash
+composer require drupal/openid_connect drupal/keycloak
+# Enable modules using drush
+chmod +x vendor/bin/drush
+vendor/bin/drush en openid_connect keycloak -y
+```
+
+Now stop the container again you should see the container stopped without getting removed
+
+```sh
+podman stop openplc_container
+podman ps -a
+podman ps -a
+CONTAINER ID  IMAGE                           COMMAND       CREATED         STATUS                       PORTS                 NAMES
+7ec3e606d67d  localhost/openplc_image:latest  -DFOREGROUND  10 minutes ago  Exited (137) 14 seconds ago  0.0.0.0:8081->80/tcp  openplc_container
+# Commit podman container
+podman commit openplc_container localhost/openplc_image
+# Check if the image is updated
+podman images
+# stop the service file
+systemctl --user stop openplc_persist
+# check if the container is running
+podman ps
+```
+
+Now open openplc website and check if the changes are saved on new container
