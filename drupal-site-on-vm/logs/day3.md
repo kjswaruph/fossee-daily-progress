@@ -1,6 +1,6 @@
 # Task: Keycloak automation
 
-Date: 12/10/25
+Date: 13/10/25
 
 - 2:30 Logged in
 - 2:40 Stop openplc_container and observe it gets removed due to --rm tag
