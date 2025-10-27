@@ -82,6 +82,7 @@ Fix permissions and run the script
 
 ```sh
 sudo chown -R keycloak:$USER keycloak/
+sudo chmod -R g+w keycloak/
 chmod +x keycloak
 ./keycloak
 ```
