@@ -48,7 +48,7 @@ getInput() {
 			KEYCLOAK_USER="$tmp_keycloak_user"
 			KEYCLOAK_PASSWORD="$tmp_keycloak_password"
 			KEYCLOAK_CLIENT_ID="$tmp_keycloak_client_id"
-			KEYCLOAK_DRUPAL_BASE="$tmp_drupal_base"
+			DRUPAL_BASE="$tmp_drupal_base"
 			echo "Confirmed. Continuing..."
 			break
 		else
@@ -146,6 +146,7 @@ KEYCLOAK_BASE=""
 KEYCLOAK_USER=""
 KEYCLOAK_PASSWORD=""
 KEYCLOAK_CLIENT_ID=""
+DRUPAL_BASE=""
 CLIENT_JSON_PATH="client.json"
 CONFIG_JSON_PATH="config.json"
 
