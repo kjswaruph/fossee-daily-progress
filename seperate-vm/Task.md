@@ -34,7 +34,7 @@ nmcli connection show
 
 Install keycloak and drupal on respective VMs
 
-## 4. Keycloak script
+## 3. Keycloak script
 
 Create dir and set permissions
 
@@ -90,7 +90,7 @@ chmod +x keycloak
 
 This will generate secret.json file copy the contents of the file
 
-## 6. Drupal script
+## 4. Drupal script
 
 Create a dir and copy required files
 
@@ -121,6 +121,6 @@ chmod +x drupal
 ./drupal
 ```
 
-## 7. Test SSO
+## 5. Test SSO
 
 Open your drupal site and try to login
