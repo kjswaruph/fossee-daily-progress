@@ -9,8 +9,6 @@
 - Now open created machine's setting. Under Network, set
   - Adapter 1
     - Attached to: NAT
-    - Name: Select the NAT network we created
-      Leave rest as it is
   - Adapter 2
     - Turn on Enable Network Adapter
     - Attached to: Host-only adapter
