@@ -1,0 +1,10 @@
+[
+  {
+    "keycloak_realm": "",
+    "keycloak_base": "",
+    "keycloak_user": "",
+    "keycloak_password": "",
+    "drupal_base": "",
+    "keycloak_client_id": ""
+  }
+]

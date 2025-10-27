@@ -1,0 +1,9 @@
+{
+  "clientId": "",
+  "enabled": true,
+  "publicClient": false,
+  "protocol": "openid-connect",
+  "clientAuthenticatorType": "client-secret",
+  "standardFlowEnabled": true,
+  "redirectUris": [""]
+}
