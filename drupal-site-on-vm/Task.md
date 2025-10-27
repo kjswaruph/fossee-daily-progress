@@ -236,24 +236,7 @@ RestartSec=30
 WantedBy=multi-user.target
 ```
 
-Set correct owner and seli[Unit]
-Description=Keycloak Authorization Server
-After=network.target
-
-[Service]
-Type=idle
-User=keycloak
-Group=keycloak
-WorkingDirectory=/opt/keycloak
-ExecStart=/opt/keycloak/bin/kc.sh start --optimized
-LimitNOFILE=102400
-LimitNPROC=102400
-TimeoutStartSec=600
-Restart=on-failure
-RestartSec=30
-
-[Install]
-WantedBy=multi-user.targetnux file attributes.
+Set correct owner and selinux file attributes.
 
 ```shell
 sudo chcon -u system_u -t systemd_unit_file_t /etc/systemd/system/keycloak.service
@@ -356,7 +339,6 @@ podman exec -it openplc_container bash
 composer require drupal/openid_connect drupal/keycloak
 # Enable modules using drush
 chmod +x vendor/bin/drush
-vendor/bin/drush en openid_connect keycloak -y
 ```
 
 Now stop the container again you should see the container stopped without getting removed
@@ -371,8 +353,8 @@ CONTAINER ID  IMAGE                           COMMAND       CREATED         STAT
 podman commit openplc_container localhost/openplc_image
 # Check if the image is updated
 podman images
-# stop the service file
-systemctl --user stop openplc_persist
+# start the service file
+systemctl --user start openplc_persist
 # check if the container is running
 podman ps
 ```
