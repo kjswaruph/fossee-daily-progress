@@ -11,12 +11,6 @@ checkPrereqs() {
 		exit 1
 	fi
 
-	if [[ ! -f "$SECRET_FILE" ]]; then
-		echo "Error: Client secret file '$SECRET_FILE' not found." >&2
-		echo "Please run the keycloak.sh script first to generate it." >&2
-		exit 1
-	fi
-
 	if ! podman ps --format "{{.Names}}" | grep -q "^$CONTAINER_NAME$"; then
 		echo "Error: Podman container '$CONTAINER_NAME' is not running." >&2
 		exit 1
@@ -53,32 +47,13 @@ getInput() {
 	return 0
 }
 
-readSecrets() {
-	echo "Reading client details from $SECRET_FILE..."
-
-	CLIENT_ID=$(jq -r '.[0].clientId' "$SECRET_FILE")
-	CLIENT_SECRET=$(jq -r '.[0].secret' "$SECRET_FILE")
-
-	if [ -z "$CLIENT_ID" ] || [ "$CLIENT_ID" == "null" ]; then
-		echo "Error: Could not read 'clientId' from $SECRET_FILE." >&2
-		return 1
-	fi
-
-	if [ -z "$CLIENT_SECRET" ] || [ "$CLIENT_SECRET" == "null" ]; then
-		echo "Error: Could not read 'secret' from $SECRET_FILE." >&2
-		return 1
-	fi
-
-	echo "Successfully read Client ID: $CLIENT_ID"
-	return 0
-}
-
 createClient() {
 	echo "Configuring Drupal OpenID Connect..."
 
 	KEYCLOAK_BASE="${KEYCLOAK_BASE%/}"
 
 	podman exec -it "$CONTAINER_NAME" bash -c "
+		chmod +x vendor/bin/drush &&
         vendor/bin/drush config:set openid_connect.settings.keycloak enabled true -y &&
         vendor/bin/drush config:set openid_connect.settings.keycloak settings.client_id '$CLIENT_ID' -y &&
         vendor/bin/drush config:set openid_connect.settings.keycloak settings.client_secret '$CLIENT_SECRET' -y &&
@@ -117,13 +92,22 @@ KEYCLOAK_REALM=""
 CLIENT_ID=""
 CLIENT_SECRET=""
 CONTAINER_NAME="openplc_container"
-SECRET_FILE="secret.json"
 
 main() {
+
+	if [[ "$1" == "-c" ]]; then
+		CLIENT_ID="$2"
+		shift 2
+	fi
+
+	if [[ "$1" == "-s" ]]; then
+		CLIENT_SECRET="$2"
+		shift 2
+	fi
+
 	{
 		checkPrereqs &&
 			getInput &&
-			readSecrets &&
 			createClient &&
 			echo
 		echo "::: Drupal OpenID Connect Setup Complete :::"
