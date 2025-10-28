@@ -82,20 +82,17 @@ updateConfigJSON() {
 		--arg user "$KEYCLOAK_USER" \
 		--arg password "$KEYCLOAK_PASSWORD" \
 		--arg client_id "$KEYCLOAK_CLIENT_ID" \
-		--arg drupal_base "$KEYCLOAK_DRUPAL_BASE" \
-		'map(
-           if .keycloak_realm == "" or .keycloak_realm == null then
-               . + {
-                   "keycloak_realm": $realm,
-                   "keycloak_base": $base,
-                   "keycloak_user": $user,
-                   "keycloak_password": $password,
-                   "keycloak_client_id": $client_id,
-                   "keycloak_drupal_base": $drupal_base
-               }
-           else .
-           end
-       )' "$CONFIG_JSON_PATH" >tmp && mv tmp "$CONFIG_JSON_PATH"
+		--arg drupal_base "$DRUPAL_BASE" \
+		'
+        .[0] = (.[0] | . + {
+            "keycloak_realm": $realm,
+            "keycloak_base": $base,
+            "keycloak_user": $user,
+            "keycloak_password": $password,
+            "keycloak_client_id": $client_id,
+            "drupal_base": $drupal_base
+        })
+        ' "$CONFIG_JSON_PATH" >tmp && mv tmp "$CONFIG_JSON_PATH"
 
 	if [ $? -ne 0 ]; then
 		echo "Error: Failed to update $CONFIG_JSON_PATH." >&2
