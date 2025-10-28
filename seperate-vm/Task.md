@@ -81,6 +81,7 @@ wget https://raw.githubusercontent.com/kjswaruph/fossee-daily-progress/refs/head
 Fix permissions and run the script
 
 ```sh
+cd ..
 sudo chown -R keycloak:$USER keycloak/
 sudo chmod -R g+w keycloak/
 chmod +x keycloak
@@ -98,15 +99,6 @@ mkdir drupal
 cd drupal
 ```
 
-Add the file which you got from keycloak script
-
-```json
-[ {
-  "clientId" : <your_clientId>,
-  "secret" : <your_clientSecret>
-} ]
-```
-
 Add script file
 
 ```sh
@@ -117,7 +109,7 @@ Run the script file
 
 ```sh
 chmod +x drupal
-./drupal
+./drupal -c <your_client_id> -s <your_client_secret>
 ```
 
 ## 5. Test SSO
