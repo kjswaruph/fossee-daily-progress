@@ -1,19 +1,5 @@
 #!/bin/bash
 
-checkPrereqs() {
-	# if ! command -v podman &>/dev/null; then
-	# 	echo "Error: 'podman' command not found. Please install 'podman'." >&2
-	# 	exit 1
-	# fi
-
-	# if ! podman ps --format "{{.Names}}" | grep -q "^$CONTAINER_NAME$"; then
-	# 	echo "Error: Podman container '$CONTAINER_NAME' is not running." >&2
-	# 	exit 1
-	# fi
-
-	echo "Prerequisites check passed."
-}
-
 getInput() {
 	local tmp_keycloak_base tmp_keycloak_realm
 	local confirm
