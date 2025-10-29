@@ -6,11 +6,6 @@ checkPrereqs() {
 	# 	exit 1
 	# fi
 
-	if ! command -v jq &>/dev/null; then
-		echo "Error: 'jq' command not found. Please install 'jq'." >&2
-		exit 1
-	fi
-
 	# if ! podman ps --format "{{.Names}}" | grep -q "^$CONTAINER_NAME$"; then
 	# 	echo "Error: Podman container '$CONTAINER_NAME' is not running." >&2
 	# 	exit 1
@@ -102,8 +97,8 @@ main() {
 	fi
 
 	{
-		checkPrereqs &&
-			getInput &&
+
+		getInput &&
 			createClient &&
 			echo
 		echo "::: Drupal OpenID Connect Setup Complete :::"
