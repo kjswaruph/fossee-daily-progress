@@ -1,10 +1,10 @@
 #!/bin/bash
 
 checkPrereqs() {
-	if ! command -v podman &>/dev/null; then
-		echo "Error: 'podman' command not found. Please install 'podman'." >&2
-		exit 1
-	fi
+	# if ! command -v podman &>/dev/null; then
+	# 	echo "Error: 'podman' command not found. Please install 'podman'." >&2
+	# 	exit 1
+	# fi
 
 	if ! command -v jq &>/dev/null; then
 		echo "Error: 'jq' command not found. Please install 'jq'." >&2
