@@ -4,6 +4,17 @@ getInput() {
 	local tmp_keycloak_base tmp_keycloak_realm
 	local confirm
 
+	# Use environment variables if available
+	if [[ -n "$ENV_KEYCLOAK_BASE" && -n "$ENV_KEYCLOAK_REALM" ]]; then
+		KEYCLOAK_BASE="$ENV_KEYCLOAK_BASE"
+		KEYCLOAK_REALM="$ENV_KEYCLOAK_REALM"
+		echo "Using provided Keycloak configuration:"
+		echo "Keycloak Base URL     : $KEYCLOAK_BASE"
+		echo "Keycloak Realm        : $KEYCLOAK_REALM"
+		return 0
+	fi
+
+	# Fall back to interactive input
 	while true; do
 		read -r -p "Enter Keycloak base url: " tmp_keycloak_base
 		read -r -p "Enter Keycloak realm: " tmp_keycloak_realm
