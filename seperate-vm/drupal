@@ -35,9 +35,9 @@ moduleInstall() {
 	#TODO cehck if moduels already installed
 	composer require drupal/openid_connect drupal/keycloak
 	#TODO check if moduels already enabled
-	/var/www/html/vendor/bash/drush en keycloak -y
-	/var/www/html/vendor/bash/drush en openid_connect -y
-	/var/www/html/vendor/bash/drush cr
+	/var/www/html/vendor/bin/drush en keycloak -y
+	/var/www/html/vendor/bin/drush en openid_connect -y
+	/var/www/html/vendor/bin/drush cr
 }
 
 createClient() {
