@@ -1,24 +1,23 @@
 #!/bin/bash
 
 testInput() {
-	# TODO chekc all four variables are not empty and have valid formats
 
-	if [[ -z "$CLIENT_ID" ]]; then
+	if [[ -z "{$CLIENT_ID}" ]]; then
 		echo "Error: CLIENT_ID is empty." >&2
 		return 1
 	fi
 
-	if [[ -z "$CLIENT_SECRET" ]]; then
+	if [[ -z "{$CLIENT_SECRET}" ]]; then
 		echo "Error: CLIENT_SECRET is empty." >&2
 		return 1
 	fi
 
-	if [[ -z "$KEYCLOAK_BASE" ]]; then
+	if [[ -z "{$KEYCLOAK_BASE}" ]]; then
 		echo "Error: KEYCLOAK_BASE is empty." >&2
 		return 1
 	fi
 
-	if [[ -z "$KEYCLOAK_REALM" ]]; then
+	if [[ -z "{$KEYCLOAK_REALM}" ]]; then
 		echo "Error: KEYCLOAK_REALM is empty." >&2
 		return 1
 	fi
@@ -26,15 +25,12 @@ testInput() {
 
 userCreate() {
 	chmod +x /var/www/html/vendor/bin/drush
-	/var/www/html/vendor/bin/drush user-create ${DRUPAL_USER} --mail="testmail@gmail.com" --password=${DRUPAL_USER_PASSWORD}
-	/var/www/html/vendor/bin/drush user-add-role "administrator" ${DRUPAL_USER}
-	## run as non root
+	/var/www/html/vendor/bin/drush user-create "${DRUPAL_USER}" --mail="testmail@gmail.com" --password="${DRUPAL_USER_PASSWORD}"
+	/var/www/html/vendor/bin/drush user-add-role "administrator" "${DRUPAL_USER}"
 }
 
 moduleInstall() {
-	#TODO cehck if moduels already installed
-	composer require drupal/openid_connect drupal/keycloak
-	#TODO check if moduels already enabled
+	su -u "${DRUPAL_USER}" composer require drupal/openid_connect drupal/keycloak
 	/var/www/html/vendor/bin/drush en keycloak -y
 	/var/www/html/vendor/bin/drush en openid_connect -y
 	/var/www/html/vendor/bin/drush cr
