@@ -55,89 +55,87 @@ moduleInstall() {
 
 createClient() {
 
-	drush="vendor/bin/drush"
-
-	$drush config:set openid_connect.settings.keycloak enabled true -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak enabled true -y || {
 		echo "Failed to enable Keycloak"
 		return 1
 	}
 
-	$drush config:set openid_connect.settings.keycloak settings.client_id "${CLIENT_ID}" -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.client_id "${CLIENT_ID}" -y || {
 		echo "Failed to set client ID"
 		return 1
 	}
 
-	$drush config:set openid_connect.settings.keycloak settings.client_secret "${CLIENT_SECRET}" -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.client_secret "${CLIENT_SECRET}" -y || {
 		echo "Failed to set client secret"
 		return 1
 	}
 
-	$drush config:set openid_connect.settings.keycloak settings.keycloak_base "${KEYCLOAK_BASE}" -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.keycloak_base "${KEYCLOAK_BASE}" -y || {
 		echo "Failed to set Keycloak base URL"
 		return 1
 	}
 
-	$drush config:set openid_connect.settings.keycloak settings.keycloak_realm "${KEYCLOAK_REALM}" -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.keycloak_realm "${KEYCLOAK_REALM}" -y || {
 		echo "Failed to set Keycloak realm"
 		return 1
 	}
 
-	$drush config:set openid_connect.settings.keycloak settings.userinfo_update_email false -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.userinfo_update_email false -y || {
 		echo "Failed to set email update settings"
 		return 1
 	}
 
-	$drush config:set openid_connect.settings.keycloak settings.keycloak_groups.enabled false -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.keycloak_groups.enabled false -y || {
 		echo "Failed to disable groups"
 		return 1
 	}
-	$drush config:set openid_connect.settings.keycloak settings.keycloak_groups.claim_name groups -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.keycloak_groups.claim_name groups -y || {
 		echo "Failed to set group claim name"
 		return 1
 	}
-	$drush config:set openid_connect.settings.keycloak settings.keycloak_groups.split_groups false -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.keycloak_groups.split_groups false -y || {
 		echo "Failed to set split groups"
 		return 1
 	}
-	$drush config:set openid_connect.settings.keycloak settings.keycloak_groups.split_groups_limit '0' -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.keycloak_groups.split_groups_limit '0' -y || {
 		echo "Failed to set split groups limit"
 		return 1
 	}
-	$drush config:set openid_connect.settings.keycloak settings.keycloak_groups.rules [] -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.keycloak_groups.rules [] -y || {
 		echo "Failed to set group rules"
 		return 1
 	}
 
-	$drush config:set openid_connect.settings.keycloak settings.keycloak_sso true -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.keycloak_sso true -y || {
 		echo "Failed to enable SSO"
 		return 1
 	}
 
-	$drush config:set openid_connect.settings.keycloak settings.keycloak_sign_out true -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.keycloak_sign_out true -y || {
 		echo "Failed to enable sign out"
 		return 1
 	}
 
-	$drush config:set openid_connect.settings.keycloak settings.check_session.enabled true -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.check_session.enabled true -y || {
 		echo "Failed to set session check"
 		return 1
 	}
-	$drush config:set openid_connect.settings.keycloak settings.check_session.interval null -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.check_session.interval null -y || {
 		echo "Failed to set session interval"
 		return 1
 	}
 
-	$drush config:set openid_connect.settings.keycloak settings.redirect_url '' -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.redirect_url '' -y || {
 		echo "Failed to set redirect URL"
 		return 1
 	}
 
-	$drush config:set openid_connect.settings.keycloak settings.keycloak_i18n_enabled false -y || {
+	vendor/bin/drush config:set openid_connect.settings.keycloak settings.keycloak_i18n_enabled false -y || {
 		echo "Failed to set i18n"
 		return 1
 	}
 
-	$drush cr || {
+	vendor/bin/drush cr || {
 		echo "Failed to clear cache"
 		return 1
 	}
@@ -193,8 +191,8 @@ main() {
 
 	{
 		testInput &&
-			userCreate &&
 			moduleInstall &&
+			userCreate &&
 			createClient &&
 			echo
 		echo "::: Drupal OpenID Connect Setup Complete :::"
