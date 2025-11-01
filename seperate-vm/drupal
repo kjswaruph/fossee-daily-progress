@@ -34,7 +34,7 @@ moduleInstall() {
 	/var/www/html/vendor/bin/drush cr
 	apt install unzip
 
-	su -s /bin/bash ${USER} -c "composer require drupal/openid_connect drupal/keycloak" || {
+	su -s /bin/bash "${USER}" -c "composer require drupal/openid_connect drupal/keycloak" || {
 		echo "Failed to install modules with composer"
 		return 1
 	}
