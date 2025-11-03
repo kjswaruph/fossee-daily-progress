@@ -1,0 +1,147 @@
+#!/bin/bash
+
+testInput() {
+
+	if [[ -z "${CLIENT_ID}" ]]; then
+		echo "Error: CLIENT_ID is empty." >&2
+		return 1
+	fi
+
+	if [[ -z "${CLIENT_SECRET}" ]]; then
+		echo "Error: CLIENT_SECRET is empty." >&2
+		return 1
+	fi
+
+	if [[ -z "${KEYCLOAK_BASE}" ]]; then
+		echo "Error: KEYCLOAK_BASE is empty." >&2
+		return 1
+	fi
+
+	if [[ -z "${KEYCLOAK_REALM}" ]]; then
+		echo "Error: KEYCLOAK_REALM is empty." >&2
+		return 1
+	fi
+
+	if [[ -z "${EMAIL}" ]]; then
+		echo "Error: EMAIL is empty." >&2
+		return 1
+	fi
+
+	if [[ -z "${DRUPAL_USER}" ]]; then
+		echo "Error: DRUPAL_USER is empty." >&2
+		return 1
+	fi
+
+	if [[ -z "${DRUPAL_USER_PASSWORD}" ]]; then
+		echo "Error: DRUPAL_USER_PASSWORD is empty." >&2
+		return 1
+	fi
+
+	if [[ -z "${USER}" ]]; then
+		echo "Error: USER is empty." >&2
+		return 1
+	fi
+}
+
+userCreate() {
+	/var/www/html/vendor/bin/drush user-create "${DRUPAL_USER}" --mail="${EMAIL}" --password="${DRUPAL_USER_PASSWORD}"
+	/var/www/html/vendor/bin/drush user-add-role "administrator" "${DRUPAL_USER}"
+	/var/www/html/vendor/bin/drush cr
+}
+
+moduleInstall() {
+	chmod +x /var/www/html/vendor/bin/drush
+	/var/www/html/vendor/bin/drush cr
+	apt install unzip -y
+
+	echo "Installing OpenID && keycloak modules..."
+	su -s /bin/bash "${USER}" -c "composer require drupal/openid_connect drupal/keycloak" || {
+		echo "Failed to install modules with composer"
+		return 1
+	}
+
+	echo "Enabling modules..."
+	/var/www/html/vendor/bin/drush en openid_connect keycloak -y
+	/var/www/html/vendor/bin/drush cr
+}
+
+createClient() {
+	local drush="/var/www/html/vendor/bin/drush"
+
+	echo "Configuring Keycloak..."
+	$drush config:set openid_connect.settings.keycloak enabled true -y
+	$drush config:set openid_connect.settings.keycloak settings.client_id "${CLIENT_ID}" -y
+	$drush config:set openid_connect.settings.keycloak settings.client_secret "${CLIENT_SECRET}" -y
+	$drush config:set openid_connect.settings.keycloak settings.keycloak_base "${KEYCLOAK_BASE}" -y
+	$drush config:set openid_connect.settings.keycloak settings.keycloak_realm "${KEYCLOAK_REALM}" -y
+	$drush config:set openid_connect.settings.keycloak settings.keycloak_sso true -y
+	$drush config:set openid_connect.settings connect_existing_users true -y
+	$drush cr
+	echo "Keycloak configuration completed."
+}
+
+DRUPAL_USER=""
+DRUPAL_USER_PASSWORD=""
+KEYCLOAK_BASE=""
+KEYCLOAK_REALM=""
+CLIENT_ID=""
+CLIENT_SECRET=""
+USER=""
+EMAIL=""
+
+main() {
+
+	if [[ "$1" == "--client-id" ]]; then
+		CLIENT_ID="$2"
+		shift 2
+	fi
+
+	if [[ "$1" == "--client-secret" ]]; then
+		CLIENT_SECRET="$2"
+		shift 2
+	fi
+
+	if [[ "$1" == "--base" ]]; then
+		KEYCLOAK_BASE="$2"
+		shift 2
+	fi
+
+	if [[ "$1" == "--realm" ]]; then
+		KEYCLOAK_REALM="$2"
+		shift 2
+	fi
+
+	if [[ "$1" == "--email" ]]; then
+		EMAIL="$2"
+		shift 2
+	fi
+
+	if [[ "$1" == "--drupal-user" ]]; then
+		DRUPAL_USER="$2"
+		shift 2
+	fi
+
+	if [[ "$1" == "--drupal-password" ]]; then
+		DRUPAL_USER_PASSWORD="$2"
+		shift 2
+	fi
+
+	if [[ "$1" == "--user" ]]; then
+		USER="$2"
+		shift 2
+	fi
+
+	{
+		testInput &&
+			moduleInstall &&
+			userCreate &&
+			createClient &&
+			echo
+		echo "::: Drupal OpenID Connect Setup Complete :::"
+	} || {
+		echo
+		echo "!!! Drupal OpenID Connect Setup Failed !!!"
+	}
+}
+
+main "$@"
