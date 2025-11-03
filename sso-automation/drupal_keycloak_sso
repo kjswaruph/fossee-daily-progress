@@ -135,8 +135,9 @@ main() {
 		testInput &&
 			moduleInstall &&
 			userCreate &&
-			createClient &&
-			echo
+			createClient
+	} && {
+		echo
 		echo "::: Drupal OpenID Connect Setup Complete :::"
 	} || {
 		echo

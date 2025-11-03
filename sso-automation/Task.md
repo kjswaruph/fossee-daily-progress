@@ -5,6 +5,7 @@ This guide provides documentation for automation scripts that streamline Keycloa
 ## Overview
 
 The automation scripts consist of:
+
 1. keycloak_client_setup - Automates Keycloak client creation and configuration
 2. drupal_keycloak_sso - Automates Drupal OpenID Connect module installation and SSO setup
 
@@ -14,7 +15,7 @@ These scripts work together to establish Single Sign-On between Keycloak and Dru
 
 ### Overview
 
-The `keycloak` script automates the process of creating a Keycloak client for Drupal SSO integration using kcadm.sh script file.
+The `keycloak_client_setup` script automates the process of creating a Keycloak client for Drupal SSO integration using kcadm.sh script file.
 
 ### Setup Directory
 
@@ -28,6 +29,7 @@ cd ~/keycloak-automation
 Create two JSON configuration files:
 
 config.json
+
 ```json
 [
   {
@@ -42,6 +44,7 @@ config.json
 ```
 
 client.json
+
 ```json
 []
 ```
@@ -64,6 +67,7 @@ chmod +x keycloak_client_setup
 ### Overview
 
 The `drupal_keycloak_sso` script automates Drupal configuration for Keycloak SSO integration. It handles:
+
 - OpenID Connect and Keycloak module installation
 - Drupal user creation with administrator role
 - OpenID Connect configuration via Drush
@@ -75,6 +79,7 @@ cd /var/www/html
 wget https://raw.githubusercontent.com/kjswaruph/fossee-daily-progress/refs/heads/main/sso-automation/drupal_keycloak_sso
 chmod +x drupal_keycloak_sso
 ```
+
 ### Run the Script
 
 ```sh
@@ -98,6 +103,7 @@ vendor/bin/drush config:get openid_connect.settings.keycloak
 ```
 
 Expected output:
+
 ```yaml
 enabled: true
 settings:
@@ -108,7 +114,6 @@ settings:
   keycloak_sso: true
 ```
 
-
 ## 3. Complete Integration Workflow
 
 ### Step 1: Setup Keycloak Client
@@ -116,8 +121,7 @@ settings:
 On the Keycloak server:
 
 ```sh
-cd ~/keycloak-automation
-./keycloak
+./keycloak_client_setup
 ```
 
 Enter the required information when prompted. Note the generated client secret from `client.json`.
@@ -141,18 +145,21 @@ cd /var/www/html
 
 ### Step 3: Test SSO Integration
 
-1. Navigate to Drupal Login: 
+1. Navigate to Drupal Login:
+
    ```
    http://<drupal-url>/user/login
    ```
 
 2. Test SSO Flow:
+
    - You should be redirected to Keycloak login page
    - After successful login, redirected back to Drupal
 
 3. Verify User Account:
+
    - Check that user is logged into Drupal
-   - Verify user has administrator role 
+   - Verify user has administrator role
 
 4. Test Single Logout:
    - Log out from Drupal
