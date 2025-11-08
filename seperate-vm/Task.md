@@ -5,7 +5,8 @@ This guide walks you through setting up Drupal and Keycloak on separate Virtual 
 ## Prerequisites
 
 - VirtualBox installed on your host machine
-- Rocky Linux ISO image 
+- Rocky Linux ISO image
+
 ## 1. VM Setup and Network Configuration
 
 ### Create Virtual Machines
@@ -31,11 +32,10 @@ This guide walks you through setting up Drupal and Keycloak on separate Virtual 
 For each VM, open Settings > Network:
 
 - Adapter 1:
-  - Enable Network Adapter: 
+  - Enable Network Adapter:
   - Attached to: NAT
-  
 - Adapter 2:
-  - Enable Network Adapter: 
+  - Enable Network Adapter:
   - Attached to: Host-only Adapter
   - Name: Select the host-only network created earlier
 
@@ -46,6 +46,7 @@ Save and exit
 Start both VMs and configure static IPs on the host-only network interface.
 
 For Keycloak VM (assign `192.168.56.11`):
+
 ```sh
 # List network connections
 nmcli con show
@@ -62,6 +63,7 @@ ip addr show enp0s8
 ```
 
 For Drupal VM (assign `192.168.56.10`):
+
 ```sh
 nmcli con show
 nmcli connection modify enp0s8 ipv4.addresses 192.168.56.10/24
@@ -73,6 +75,7 @@ ip addr show enp0s8
 ```
 
 Test Connectivity:
+
 ```sh
 # From Keycloak VM
 ping -c 3 192.168.56.10
@@ -188,7 +191,7 @@ chmod +x drupal
 ./drupal -c <your_client_id> -s <your_client_secret>
 ```
 
-### Drush Configuration 
+### Drush Configuration
 
 This part of documentation is a explanation to all the configurations that are being made in **createClient()** function inside the **drupal** script.
 
@@ -200,7 +203,7 @@ The drush commands updates the openid_connect.settings.kecloak.yaml or database 
 | `settings.client_id '$CLIENT_ID'`                                           | Sets the Keycloak client ID that Drupal will use for authentication.                                                                               |
 | `settings.client_secret '$CLIENT_SECRET'`                                   | Sets the secret key used to authenticate Drupal with Keycloak.                                                                                     |
 | `settings.keycloak_base '$KEYCLOAK_BASE'`                                   | Defines the base URL of your Keycloak server, you may have provided when asked.                                                                    |
-| `settings.keycloak_realm '$KEYCLOAK_REALM'`                                 | Specifies the Keycloak realm Drupal should connect to. (*eg. master*)                                                                              |
+| `settings.keycloak_realm '$KEYCLOAK_REALM'`                                 | Specifies the Keycloak realm Drupal should connect to. (_eg. master_)                                                                              |
 | `settings.userinfo_update_email false`                                      | Disables automatic updating of user email from Keycloak profile info.                                                                              |
 | `settings.keycloak_groups.enabled false`                                    | Disables Keycloak group synchronization.                                                                                                           |
 | `settings.keycloak_groups.claim_name groups`                                | (If enabled) would specify which claim contains group data.                                                                                        |
@@ -221,6 +224,7 @@ The drush commands updates the openid_connect.settings.kecloak.yaml or database 
 ### Verify Configuration
 
 1. **Check Keycloak:**
+
    - Login to Keycloak admin console: `http://192.168.56.11:8080`
    - Navigate to your realm > Clients
    - Verify the Drupal client exists and is enabled
@@ -231,6 +235,48 @@ The drush commands updates the openid_connect.settings.kecloak.yaml or database 
 
 ### Test Login Flow
 
-Open `http://192.168.56.10:8081/user/login` and check if it redirects to keycloak admin console 
+Open `http://192.168.56.10:8081/user/login` and check if it redirects to keycloak admin console
 
+./drupal --client-id openplctest --client-secret SNQfAi2ulIwUDmtQlcz1Bjm0vzft5sNQ --base http://192.168.56.11:8080 --realm master --drupal-user swaruph --drupal-password "123456" --user
 
+podman build -t "openplc_image" . \
+ --build-arg REPO_DIR="openplc_docker_image" \
+ --build-arg ENV_DB="openplcdb2_2025_10_29" \
+ --build-arg ENV_USR="openplcdb2user" \
+ --build-arg ENV_PSWD="QUC,o]uaIJNtoCG7Ui8B#3GG%e)@CBihqzf" \
+ --build-arg ENV_SSO_ID="openplc" \
+ --build-arg ENV_SSO_SECRET="eiG19oP5AJogN2AM4hcpxvDzyS4ckUC9" \
+ --build-arg ENV_KEYCLOAK_BASE="http://192.168.56.11:8080" \
+ --build-arg ENV_KEYCLOAK_REALM="master" \
+ --build-arg ENV_HOST="10.0.2.2"
+
+https://rawcdn.githack.com/kjswaruph/fossee-daily-progress/main/seperate-vm/drupal
+
+enabled: true
+settings:
+  client_id: openplctest
+  client_secret: SNQfAi2ulIwUDmtQlcz1Bjm0vzft5sNQ
+  keycloak_base: 'http://192.168.56.11:8080'
+  keycloak_realm: master
+  userinfo_update_email: false
+  keycloak_groups:
+    enabled: false
+    claim_name: groups
+    split_groups: true
+    split_groups_limit: '0'
+    rules: {  }
+  keycloak_sso: true
+  keycloak_sign_out: true
+  check_session:
+    enabled: true
+    interval: null
+  redirect_url: ''
+  keycloak_i18n_enabled: false
+
+./drupal_oidc \
+  --client-id openplctest \
+  --client-secret SNQfAi2ulIwUDmtQlcz1Bjm0vzft5sNQ \
+  --base http://192.168.56.11:8080 \
+  --realm master \
+  --drupal-user admin \
+  --drupal-password admin123
