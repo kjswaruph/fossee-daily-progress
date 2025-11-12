@@ -43,7 +43,7 @@ Edit `.env` file and uncomment all variables:
 Add the Mozilla Django OIDC library to the requirements file:
 
 ```sh
-echo "mozilla-django-oidc" >> docker/Files/requirements-common.txt
+echo "mozilla_django_oidc" >> docker/Files/requirements-common.txt
 ```
 
 Edit `Dockerfile_django`, update ubuntu image to 20.04 and add ENV DEBIAN_FRONTEND variable
@@ -65,7 +65,7 @@ RUN cd /Sites/online_test && \
 Edit `Dockerfile_codeserver`, update ubuntu image to 20.04 and add env DEBIAN_FRONTEND
 
 ```Dockerfile
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ```
