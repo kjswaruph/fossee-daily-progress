@@ -461,25 +461,48 @@ mkdir -p /tmp/mm2_migration
 
 ```sh
 # Copy list config files (pickle format)
-sudo cp -r /var/lib/mailman/lists/*/config.pck /tmp/mm2_migration/
+sudo cp -r /var/lib/mailman/lists/ /tmp/mm2_migration/
 ```
 
 ### Export Archives
 
 ```sh
 # Copy mbox archive files
-sudo cp /var/lib/mailman/archives/private/*/*.mbox/*.mbox /tmp/mm2_migration/
+sudo cp -r /var/lib/mailman/archives/private/ /tmp/mm2_migration/
+```
+
+### Create Compressed Archive
+
+```sh
+# Change to /tmp directory
+cd /tmp
+
+# Create compressed tar archive
+sudo tar -czvf mailman2_migration_data.tar.gz mm2_migration/
 ```
 
 ### Transfer to AlmaLinux
 
 ```sh
-scp -r /tmp/mm2_migration user@192.168.56.11:/opt/mailman3/migration_data
+# Transfer compressed archive to AlmaLinux server
+scp /tmp/mailman2_migration_data.tar.gz user@192.168.56.11:/tmp/
 ```
 
 Replace user and IP address with your AlmaLinux server details.
 
 ## 8. Import Data to AlmaLinux 10
+
+### Extract Migration Data
+
+```sh
+# Extract the tar archive
+cd /tmp
+tar -xzvf mailman2_migration_data.tar.gz
+
+# Move to mailman directory
+sudo mkdir -p /opt/mailman3/migration_data
+sudo mv mm2_migration/* /opt/mailman3/migration_data/
+```
 
 ### Copy Data to Containers
 
