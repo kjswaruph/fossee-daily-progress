@@ -428,23 +428,63 @@ cd docker-mailman
 
 ### Configure Mailman 3
 
+Generate random strings for django secret key and hyperkitty api
+
+```sh
+openssl rand -base64 50 # run this twice to generate two secret keys
+```
+
 Edit `docker-compose.yaml` to customize settings:
 
 ```sh
 sudo vi docker-compose.yaml
 ```
 
-Update domain name and other settings as needed.
+Add the following 
+
+```sh
+mailman-core:
+    <snip>
+    environment
+    - HYPERKITTY_API_KEY=someapikey # Add 1st generated key 
+    - MTA=postfix 
+
+mailman-web:
+    <snip>
+    environment
+    - HYPERKITTY_API_KEY=someapikey
+    - SERVE_FROM_DOMAIN=your_domain
+    - MAILMAN_ADMIN_USER=your_username
+    - MAILMAN_ADMIN_EMAIL=your_email
+    - SECRET_KEY=your_secret_key # Add 2nd generated key
+    - UWSGI_STATIC_MAP=/static=/opt/mailman-web-data/static
+```
+
+Edit `/etc/postfix/main.cf`  and add mailman-core and mailman-web to `mynetworks` so it will relay emails from the containers and add the following configuration lines
+
+```ini
+# main.cf
+
+# Support the default VERP delimiter.
+recipient_delimiter = +
+unknown_local_recipient_reject_code = 550
+owner_request_special = no
+
+transport_maps =
+    regexp:/opt/mailman/core/var/data/postfix_lmtp
+local_recipient_maps =
+    regexp:/opt/mailman/core/var/data/postfix_lmtp
+relay_domains =
+    regexp:/opt/mailman/core/var/data/postfix_domains
+```
 
 Start Mailman 3 containers:
-
 ```sh
 cd /opt/docker-mailman
 sudo docker compose up -d
 ```
 
 Verify containers are running:
-
 ```sh
 sudo docker compose ps
 ```
@@ -508,16 +548,16 @@ sudo mv mm2_migration/* /opt/mailman3/migration_data/
 
 ```sh
 # Copy to Core container
-docker cp /opt/mailman3/migration_data mailman-core-1:/tmp/mm2_data
+docker cp /opt/mailman3/migration_data mailman-core:/tmp/mm2_data
 
 # Copy to Web container
-docker cp /opt/mailman3/migration_data mailman-web-1:/tmp/mm2_data
+docker cp /opt/mailman3/migration_data mailman-web:/tmp/mm2_data
 ```
 
 ### Import List Configuration
 
 ```sh
-docker exec -it mailman-core-1 bash
+docker exec -it mailman-core bash
 ```
 
 Inside the container:
@@ -537,7 +577,6 @@ docker exec -it mailman-web-1 bash
 ```
 
 Inside the container:
-
 ```sh
 # Import mbox archives
 python3 manage.py hyperkitty_import -l mylist@example.com /tmp/mm2_data/mylist.mbox
@@ -548,7 +587,6 @@ exit
 ```
 
 Replace mylist@example.com with your actual list email.
-
 ## 9. Verify Migration
 
 ### Access Mailman 3 Web Interface
