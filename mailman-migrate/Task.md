@@ -29,7 +29,7 @@ sudo nmcli con modify enp0s3 ipv4.dns "8.8.8.8"
 sudo nmcli con up enp0s3
 
 # Configure Host-only adapter (enp0s8)
-sudo nmcli con add con-name device ethernet enp0s8 ifname enp0s8
+sudo nmcli con add device ethernet con-name enp0s8 ifname enp0s8
 sudo nmcli con modify enp0s8 ipv4.addresses "192.168.56.X/24" # Replace X with any IP (eg 192.168.56.15 for CentOS, 192.168.56.16 for AlmaLinux)
 sudo nmcli con modify enp0s8 ipv4.method manual
 sudo nmcli con modify enp0s8 ipv4.gateway ""
@@ -440,14 +440,14 @@ Edit `docker-compose.yaml` to customize settings:
 sudo vi docker-compose.yaml
 ```
 
-Add the following 
+Add the following
 
 ```sh
 mailman-core:
     <snip>
     environment
-    - HYPERKITTY_API_KEY=someapikey # Add 1st generated key 
-    - MTA=postfix 
+    - HYPERKITTY_API_KEY=someapikey # Add 1st generated key
+    - MTA=postfix
 
 mailman-web:
     <snip>
@@ -479,12 +479,14 @@ relay_domains =
 ```
 
 Start Mailman 3 containers:
+
 ```sh
 cd /opt/docker-mailman
 sudo docker compose up -d
 ```
 
 Verify containers are running:
+
 ```sh
 sudo docker compose ps
 ```
@@ -577,6 +579,7 @@ docker exec -it mailman-web-1 bash
 ```
 
 Inside the container:
+
 ```sh
 # Import mbox archives
 python3 manage.py hyperkitty_import -l mylist@example.com /tmp/mm2_data/mylist.mbox
@@ -587,6 +590,7 @@ exit
 ```
 
 Replace mylist@example.com with your actual list email.
+
 ## 9. Verify Migration
 
 ### Access Mailman 3 Web Interface
@@ -602,13 +606,9 @@ Default admin credentials:
 - Username: admin
 - Password: Set during initial setup
 
-### Verify Lists
+### Verify lists and archives
 
-Check that all mailing lists appear in the web interface.
-
-### Verify Archives
-
-Navigate to HyperKitty and verify that old messages are imported.
+Check that all mailing lists and old messages from archives are imported appear in the web interface.
 
 ### Test Email Sending
 
