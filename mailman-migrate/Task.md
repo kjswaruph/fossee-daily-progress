@@ -29,7 +29,7 @@ sudo nmcli con modify enp0s3 ipv4.dns "8.8.8.8"
 sudo nmcli con up enp0s3
 
 # Configure Host-only adapter (enp0s8)
-sudo nmcli con add device ethernet con-name enp0s8 ifname enp0s8
+sudo nmcli con add type ethernet con-name enp0s8 ifname enp0s8
 sudo nmcli con modify enp0s8 ipv4.addresses "192.168.56.X/24" # Replace X with any IP (eg 192.168.56.15 for CentOS, 192.168.56.16 for AlmaLinux)
 sudo nmcli con modify enp0s8 ipv4.method manual
 sudo nmcli con modify enp0s8 ipv4.gateway ""
@@ -441,11 +441,14 @@ sudo vi docker-compose.yaml
 ```
 
 Add the following
+Add the following
 
 ```sh
 mailman-core:
     <snip>
     environment
+    - HYPERKITTY_API_KEY=someapikey # Add 1st generated key
+    - MTA=postfix
     - HYPERKITTY_API_KEY=someapikey # Add 1st generated key
     - MTA=postfix
 
@@ -608,6 +611,9 @@ Default admin credentials:
 
 ### Verify lists and archives
 
+### Verify lists and archives
+
+Check that all mailing lists and old messages from archives are imported appear in the web interface.
 Check that all mailing lists and old messages from archives are imported appear in the web interface.
 
 ### Test Email Sending
