@@ -1,6 +1,6 @@
 # Zulip Setup with Podman
 
-This guide walks you through setting up Zulip chat server using Podman containers with Nginx as a reverse proxy and SSL/TLS encryption on Rocky Linux.
+This guide contains steps for setting up Zulip chat server using Podman and configure Postfix to use Gmail as a mail relay.
 
 ## 1. System Setup
 
@@ -74,11 +74,13 @@ Generate strong passwords using:
 openssl rand -base64 32
 ```
 
-### Configure External Host and Administrator
+### Configure External Host and email host
 
 ```yaml
 SETTING_EXTERNAL_HOST: "your.domain.com"
-SETTING_ZULIP_ADMINISTRATOR: "admin@example.com"
+SETTING_EMAIL_HOST = "your_private_address"
+SETTING_EMAIL_PORT = "25"
+SETTING_EMAIL_USE_TLS = "False"
 ```
 
 Replace with your actual domain and email address.
@@ -317,7 +319,7 @@ Zulip is running **inside rootless Podman** with an IP like:
 
 And traffic appears on host as:
 
-`192.168.56.17`
+Eg. `192.168.56.17`
 
 ### Update Postfix `mynetworks`
 
@@ -335,11 +337,11 @@ Restart Postfix:
 
 Run the Zulip test email command:
 
-`podman exec -it docker-zulip_zulip_1 \     sudo -u zulip /home/zulip/deployments/current/manage.py send_test_email swaruph134@gmail.com`
+`podman exec -it docker-zulip_zulip_1 \     sudo -u zulip /home/zulip/deployments/current/manage.py send_test_email example@gmail.com`
 
 Expected output:
 
-`Successfully sent 2 emails to swaruph134@gmail.com!`
+`Successfully sent 2 emails to example@gmail.com!`
 
 Check Postfix logs:
 
