@@ -2,3 +2,7 @@
 openplc/openplc_docker_image/
 openplc/openplc.sql
 online-test/online_test
+ova-to-ami/venv/
+ova-to-ami/.ansible/
+ova-to-ami/out.sg.yml
+
