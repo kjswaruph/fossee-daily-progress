@@ -1,0 +1,75 @@
+---
+- name: Teardown Infrastructure
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ playbook_dir }}/venv/bin/python"
+  vars_files:
+    - aws.yml
+
+  tasks:
+    # 1. Terminate Instances first (releases ENIs and Security Group locks)
+    - name: Terminate EC2 Instances
+      amazon.aws.ec2_instance:
+        filters:
+          "tag:Project": "{{ project_name }}"
+        state: absent
+        region: "{{ aws_region }}"
+        wait: true
+      register: ec2_term
+
+    # 2. Delete ALB (releases ENIs in the subnets)
+    - name: Delete Load Balancer
+      community.aws.elb_application_lb:
+        name: "{{ project_name }}-alb"
+        state: absent
+        region: "{{ aws_region }}"
+        wait: true
+
+    - name: Delete Target Group
+      community.aws.elb_target_group:
+        name: "{{ project_name }}-tg"
+        state: absent
+        region: "{{ aws_region }}"
+
+    # 3. Find Security Groups to get their IDs
+    - name: Get EC2 Security Group Info
+      amazon.aws.ec2_security_group_info:
+        region: "{{ aws_region }}"
+        filters:
+          group-name: "{{ project_name }}-ec2-sg"
+      register: ec2_sg_info
+
+    - name: Get ALB Security Group Info
+      amazon.aws.ec2_security_group_info:
+        region: "{{ aws_region }}"
+        filters:
+          group-name: "{{ project_name }}-alb-sg"
+      register: alb_sg_info
+
+    # 4. Delete EC2 SG first (it depends on ALB SG, so it must go first)
+    - name: Delete EC2 Security Group
+      amazon.aws.ec2_security_group:
+        group_id: "{{ item.group_id }}"
+        state: absent
+        region: "{{ aws_region }}"
+      loop: "{{ ec2_sg_info.security_groups }}"
+      when: ec2_sg_info.security_groups | length > 0
+      # Retry is useful if instances are still "shutting-down"
+      retries: 5
+      delay: 10
+      register: ec2_sg_result
+      until: ec2_sg_result is not failed
+
+    - name: Delete ALB Security Group
+      amazon.aws.ec2_security_group:
+        group_id: "{{ item.group_id }}"
+        state: absent
+        region: "{{ aws_region }}"
+      loop: "{{ alb_sg_info.security_groups }}"
+      when: alb_sg_info.security_groups | length > 0
+      # Add retry logic below to wait for ALB ENIs to drain
+      retries: 10
+      delay: 15
+      register: alb_sg_result
+      until: alb_sg_result is not failed

@@ -1,0 +1,15 @@
+- name: Import EC2 key pair
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ playbook_dir }}/venv/bin/python"
+  vars_files:
+    - aws.yml
+
+  tasks:
+    - name: Import local SSH key into AWS
+      amazon.aws.ec2_key:
+        name: "{{ keypair_name }}"
+        region: "{{ aws_region }}"
+        key_material: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+

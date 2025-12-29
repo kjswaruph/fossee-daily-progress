@@ -1,0 +1,34 @@
+---
+- name: Create EC2 instances
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ playbook_dir }}/venv/bin/python"
+  vars_files:
+    - aws.yml
+    - out.sg.yml
+
+  tasks:
+    - name: Launch EC2 instances
+      amazon.aws.ec2_instance:
+        name: "{{ project_name }}"
+        key_name: "{{ keypair_name }}"
+        image_id: "{{ ami_id }}"
+        instance_type: "{{ instance_type }}"
+        count: "{{ instance_count }}"
+        region: "{{ aws_region }}"
+        security_group: "{{ ec2_sg_id }}"
+        vpc_subnet_id: "{{ subnet_ids[0] }}" 
+
+        volumes:
+          - device_name: /dev/sda1
+            ebs:
+              delete_on_termination: true
+        network:
+          assign_public_ip: true
+        tags:
+          Project: "{{ project_name }}"
+        termination_protection: false
+        wait: true # Wait for instance to be running
+      register: ec2
+

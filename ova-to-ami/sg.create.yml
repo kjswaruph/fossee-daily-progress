@@ -1,0 +1,46 @@
+---
+- name: Create security groups
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ playbook_dir }}/venv/bin/python"
+  vars_files:
+    - aws.yml
+  tasks:
+    - name: Create ALB security group
+      amazon.aws.ec2_security_group:
+        name: "{{ project_name }}-alb-sg"
+        description: ALB SG
+        vpc_id: "{{ vpc_id }}"
+        region: "{{ aws_region }}"
+        rules:
+          - proto: tcp
+            ports: 80
+            cidr_ip: 0.0.0.0/0
+      register: alb_sg
+
+    - name: Create EC2 security group
+      amazon.aws.ec2_security_group:
+        name: "{{ project_name }}-ec2-sg"
+        description: EC2 SG
+        vpc_id: "{{ vpc_id }}"
+        region: "{{ aws_region }}"
+        rules:
+          - proto: tcp
+            ports: 8000
+            group_id: "{{ alb_sg.group_id }}"
+          - proto: tcp
+            ports: 22
+            cidr_ip: 0.0.0.0/0
+      register: ec2_sg
+
+    - name: Set security group IDs as facts
+      ansible.builtin.set_fact:
+        alb_sg_id: "{{ alb_sg.group_id }}"
+        ec2_sg_id: "{{ ec2_sg.group_id }}"
+    - name: Persist security group outputs
+      copy:
+        dest: ./out.sg.yml
+        content: |
+          alb_sg_id: {{ alb_sg.group_id }}
+          ec2_sg_id: {{ ec2_sg.group_id }}

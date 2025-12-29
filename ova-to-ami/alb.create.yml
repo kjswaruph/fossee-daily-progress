@@ -1,0 +1,61 @@
+---
+- name: Create ALB and Target Group
+  hosts: localhost
+  gather_facts: false
+  vars:
+    ansible_python_interpreter: "{{ playbook_dir }}/venv/bin/python"
+  vars_files:
+    - aws.yml
+    - out.sg.yml
+
+  tasks:
+    - name: Create target group with Stickiness Enabled
+      community.aws.elb_target_group:
+        name: "{{ project_name }}-tg"
+        protocol: http
+        port: 8000
+        vpc_id: "{{ vpc_id }}"
+        health_check_protocol: http
+        health_check_path: /exam/login
+        successful_response_codes: "200-399"
+        stickiness_enabled: true
+        stickiness_type: lb_cookie
+        stickiness_lb_cookie_duration: 43200 
+        region: "{{ aws_region }}"
+        state: present
+        modify_targets: false # Important: prevents clearing targets if running again
+      register: tg
+
+    - name: Create Application Load Balancer
+      community.aws.elb_application_lb:
+        name: "{{ project_name }}-alb"
+        subnets: "{{ subnet_ids }}"
+        security_groups:
+          - "{{ alb_sg_id }}"
+        scheme: internet-facing
+        listeners:
+          - Protocol: HTTP
+            Port: 80
+            DefaultActions:
+              - Type: forward
+                TargetGroupArn: "{{ tg.target_group_arn }}"
+        region: "{{ aws_region }}"
+        state: present
+      register: alb
+
+    - name: Fetch EC2 instances by tag
+      amazon.aws.ec2_instance_info:
+        region: "{{ aws_region }}"
+        filters:
+          "tag:Project": "{{ project_name }}"
+          instance-state-name: running
+      register: ec2_info
+
+    - name: Register EC2 instances to Target Group
+      community.aws.elb_target:
+        target_group_arn: "{{ tg.target_group_arn }}"
+        target_id: "{{ item.instance_id }}"
+        target_port: 8000
+        region: "{{ aws_region }}"
+        state: present
+      loop: "{{ ec2_info.instances }}"
