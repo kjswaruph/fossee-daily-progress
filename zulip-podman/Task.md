@@ -10,10 +10,17 @@ This guide contains steps for setting up Zulip chat server using Podman and conf
 sudo dnf update -y
 ```
 
+### Add EPEL repo
+
+```sh
+sudo dnf install epel-release -y
+sudo dnf install https://rpms.remirepo.net/enterprise/remi-release-10.rpm -y
+```
+
 ### Install Required Dependencies
 
 ```sh
-sudo dnf install git firewalld podman python3-pip nginx -y
+sudo dnf install git firewalld podman postfix python3-pip nginx -y
 ```
 
 ### Install Podman Compose
